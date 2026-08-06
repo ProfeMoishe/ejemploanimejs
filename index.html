@@ -284,6 +284,86 @@
     pointer-events:none;
   }
 
+  /* ---------- CIRCUIT (electrónica) ---------- */
+  .circuit{border-top:1px solid var(--line-strong);}
+  .circuit-stage{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:2.5rem;
+    align-items:center;
+  }
+  @media (max-width:760px){
+    .circuit-stage{grid-template-columns:1fr;}
+  }
+  .circuit-rig{
+    background:var(--ink-2);
+    border:1px solid var(--line-strong);
+    padding:1.4rem 1.4rem 1.6rem;
+  }
+  .circuit-rig svg{width:100%; height:auto; display:block;}
+  .btn-mono{
+    margin-top:1rem;
+    background:none;
+    border:1px solid var(--line-strong);
+    color:var(--paper);
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    padding:.6rem 1rem;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .btn-mono:hover{color:var(--yellow); border-color:var(--yellow);}
+
+  /* ---------- TERMINAL (informática) ---------- */
+  .terminal-section{border-top:1px solid var(--line-strong);}
+  .terminal{
+    max-width:44rem;
+    margin:0 auto;
+    background:var(--ink-2);
+    border:1px solid var(--line-strong);
+  }
+  .terminal-bar{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    padding:.6rem .9rem;
+    border-bottom:1px solid var(--line-strong);
+  }
+  .terminal-bar span{width:9px; height:9px; border-radius:50%; background:var(--paper-dim); opacity:.5;}
+  .terminal-bar span:nth-child(1){background:var(--red); opacity:1;}
+  .terminal-bar span:nth-child(2){background:var(--yellow); opacity:1;}
+  .terminal-title{margin-left:auto; color:var(--paper-dim); font-size:.7rem; letter-spacing:.08em;}
+  .terminal-body{
+    margin:0;
+    padding:1.3rem 1.4rem;
+    min-height:8.5rem;
+    font-size:.82rem;
+    line-height:1.65;
+    color:var(--paper);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .cursor{color:var(--yellow);}
+  .run-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:0 1.4rem 1rem;
+  }
+  .progress-pct{color:var(--paper-dim); font-size:.72rem;}
+  .progress-track{height:4px; background:var(--line-strong); margin:0 1.4rem 1rem;}
+  .progress-fill{height:100%; width:0%; background:var(--yellow);}
+  .terminal-output{
+    padding:0 1.4rem 1.4rem;
+    color:var(--yellow-soft);
+    font-size:.8rem;
+    min-height:1.2rem;
+    opacity:0;
+  }
+
   /* ---------- WORKSHOPS ---------- */
   .workshops{border-top:1px solid var(--line-strong);}
   .workshop-grid{
@@ -431,9 +511,53 @@
     </div>
   </section>
 
-  <section id="talleres" class="workshops">
+  <section id="electronica" class="circuit">
     <div class="section-head" data-reveal>
       <span class="section-num mono">02</span>
+      <h2 class="section-title">La señal</h2>
+    </div>
+    <p class="section-lead" style="margin-top:-1.6rem; margin-bottom:2.4rem;">Cerrá el interruptor y seguí la corriente hasta los tres testigos.</p>
+
+    <div class="circuit-stage">
+      <div class="circuit-rig">
+        <svg id="circuitSvg" viewBox="0 0 480 220" role="img" aria-label="Circuito con tres testigos LED">
+          <path id="wirePath" d="M40,110 C120,110 120,40 200,40 C280,40 280,180 360,180 C400,180 400,110 440,110" fill="none" stroke="var(--line-strong)" stroke-width="3"/>
+          <g transform="translate(200,40)"><circle r="10" class="led-bulb" fill="#4a4740"/></g>
+          <g transform="translate(360,180)"><circle r="10" class="led-bulb" fill="#4a4740"/></g>
+          <g transform="translate(440,110)"><circle r="10" class="led-bulb" fill="#4a4740"/></g>
+          <circle id="currentDot" r="6" fill="var(--yellow)" style="opacity:0;"/>
+        </svg>
+        <button id="switchBtn" class="btn-mono">◉ cerrar interruptor</button>
+      </div>
+      <div class="readout">
+        <span class="readout-value mono" id="voltage">0</span>
+        <span class="readout-label">V en el circuito</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="informatica" class="terminal-section">
+    <div class="section-head" data-reveal>
+      <span class="section-num mono">03</span>
+      <h2 class="section-title">El programa</h2>
+    </div>
+    <p class="section-lead" style="margin-top:-1.6rem; margin-bottom:2.4rem;">Compilá el primer programa y mirá la salida en la terminal.</p>
+
+    <div class="terminal">
+      <div class="terminal-bar"><span></span><span></span><span class="terminal-title mono">practica_01.c</span></div>
+      <pre class="terminal-body mono" id="terminalBody"><code id="codeLines"></code><span class="cursor" id="cursor">▍</span></pre>
+      <div class="run-row">
+        <button id="runBtn" class="btn-mono">▶ ejecutar</button>
+        <span class="progress-pct mono" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="terminal-output mono" id="terminalOutput"></div>
+    </div>
+  </section>
+
+  <section id="talleres" class="workshops">
+    <div class="section-head" data-reveal>
+      <span class="section-num mono">04</span>
       <h2 class="section-title">Espacios de formación</h2>
     </div>
     <div class="workshop-grid" id="workshopGrid">
@@ -473,29 +597,35 @@
         <h3>Aula de Electromecánica</h3>
         <p>Motores, tableros de comando y sistemas de automatización.</p>
       </article>
+      <article class="workshop-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.4"><path d="M4 16h16M6 16l1.5-5h9L18 16M8 16v3M16 16v3"/><circle cx="8" cy="19" r="1.3"/><circle cx="16" cy="19" r="1.3"/></svg>
+        <span class="tag mono">T-07</span>
+        <h3>Orientación en Automotores</h3>
+        <p>Motores de combustión, sistemas eléctricos y diagnóstico vehicular.</p>
+      </article>
     </div>
   </section>
 
   <section id="recorrido" class="path-section">
     <div class="section-head" data-reveal>
-      <span class="section-num mono">03</span>
+      <span class="section-num mono">05</span>
       <h2 class="section-title">Recorrido formativo</h2>
     </div>
     <ol class="path-list" id="pathList">
       <li>
-        <span class="step mono">01 · 1°–2°</span>
+        <span class="step mono">01 · 1°–3°</span>
         <div><h3>Ciclo Básico</h3><p>Formación general común a todas las orientaciones técnicas.</p></div>
       </li>
       <li>
-        <span class="step mono">02 · 3°–6°</span>
-        <div><h3>Ciclo Superior</h3><p>Especialización técnica con carga creciente de taller y laboratorio.</p></div>
+        <span class="step mono">02 · 4°–7°</span>
+        <div><h3>Ciclo de Especialización</h3><p>Especialización técnica con carga creciente de taller y laboratorio.</p></div>
       </li>
       <li>
-        <span class="step mono">03 · Final</span>
+        <span class="step mono">03 · 7°</span>
         <div><h3>Prácticas Profesionalizantes</h3><p>Experiencia formativa en talleres, laboratorios o entornos de trabajo reales.</p></div>
       </li>
       <li>
-        <span class="step mono">04 · Egreso</span>
+        <span class="step mono">04 · 7°</span>
         <div><h3>Título técnico</h3><p>Egreso con título de técnico/a de nivel medio, validez nacional.</p></div>
       </li>
     </ol>
@@ -503,14 +633,14 @@
 
   <section class="cta">
     <h2>Armá tu propio engranaje</h2>
-    <p>Esta página es un ejemplo con anime.js, pensado para publicarse en GitHub Pages. Reemplazá textos, colores y el escudo por los de tu institución.</p>
+    <p>Esta página es un ejemplo con anime.js, pensado para publicarse en GitHub Pages.</p>
   </section>
 
 </main>
 
 <footer>
   <img src="logo.png" alt="">
-  <p>IPET N.° 249 «Nicolás Copérnico» — plantilla de ejemplo construida con anime.js</p>
+  <p>IPET N.° 249 «Nicolás Copérnico»</p>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -710,6 +840,131 @@
     });
   });
 
+  /* =====================================================
+     4b) LA SEÑAL: interruptor → corriente sigue el cable (anime.path)
+     ===================================================== */
+  var circuitBusy = false;
+  var voltageEl = document.getElementById('voltage');
+  var currentDot = document.getElementById('currentDot');
+
+  function animateNumber(targetEl, from, to, duration){
+    var obj = { v: from };
+    anime({
+      targets: obj,
+      v: to,
+      round: 1,
+      duration: duration,
+      easing: 'easeOutQuad',
+      update: function(){ targetEl.textContent = Math.round(obj.v); }
+    });
+  }
+
+  document.getElementById('switchBtn').addEventListener('click', function(){
+    if (circuitBusy) return;
+    circuitBusy = true;
+
+    document.querySelectorAll('.led-bulb').forEach(function(led){ led.setAttribute('fill', '#4a4740'); });
+    currentDot.style.opacity = 1;
+
+    var path = anime.path('#wirePath');
+
+    anime({
+      targets: currentDot,
+      translateX: path('x'),
+      translateY: path('y'),
+      duration: 1500,
+      easing: 'easeInOutSine',
+      complete: function(){ currentDot.style.opacity = 0; circuitBusy = false; }
+    });
+
+    animateNumber(voltageEl, 0, 12, 1500);
+
+    document.querySelectorAll('.led-bulb').forEach(function(led, i){
+      anime({
+        targets: led,
+        fill: ['#4a4740', '#e8c93e'],
+        duration: 260,
+        delay: 320 + i * 460,
+        easing: 'easeOutQuad'
+      });
+    });
+  });
+
+  /* =====================================================
+     4c) EL PROGRAMA: efecto máquina de escribir + barra de avance
+     ===================================================== */
+  var programBusy = false;
+  var codeLinesEl = document.getElementById('codeLines');
+  var progressFillEl = document.getElementById('progressFill');
+  var progressPctEl = document.getElementById('progressPct');
+  var terminalOutputEl = document.getElementById('terminalOutput');
+  var cursorEl = document.getElementById('cursor');
+
+  var SOURCE_CODE = '#include <stdio.h>\n\nint main(void) {\n    printf("Taller de Informatica\\n");\n    return 0;\n}';
+
+  function typeCode(text, container){
+    container.innerHTML = '';
+    var spans = [];
+    Array.from(text).forEach(function(ch){
+      if (ch === '\n'){
+        container.appendChild(document.createTextNode('\n'));
+      } else {
+        var span = document.createElement('span');
+        span.textContent = ch;
+        span.style.opacity = 0;
+        container.appendChild(span);
+        spans.push(span);
+      }
+    });
+    return spans;
+  }
+
+  anime({
+    targets: '#cursor',
+    opacity: [ { value: 1, duration: 500 }, { value: 0, duration: 500 } ],
+    easing: 'linear',
+    loop: true
+  });
+
+  document.getElementById('runBtn').addEventListener('click', function(){
+    if (programBusy) return;
+    programBusy = true;
+
+    terminalOutputEl.textContent = '';
+    terminalOutputEl.style.opacity = 0;
+    progressFillEl.style.width = '0%';
+    progressPctEl.textContent = '0%';
+
+    var chars = typeCode(SOURCE_CODE, codeLinesEl);
+
+    anime({
+      targets: chars,
+      opacity: [0, 1],
+      duration: 30,
+      delay: anime.stagger(14),
+      easing: 'linear'
+    }).finished.then(function(){
+      return anime({
+        targets: progressFillEl,
+        width: ['0%', '100%'],
+        duration: 900,
+        easing: 'easeInOutQuad',
+        update: function(anim){ progressPctEl.textContent = Math.round(anim.progress) + '%'; }
+      }).finished;
+    }).then(function(){
+      terminalOutputEl.textContent = '✓ compilado — Taller de Informática';
+      return anime({
+        targets: terminalOutputEl,
+        opacity: [0, 1],
+        translateY: [6, 0],
+        duration: 500,
+        easing: 'easeOutQuad'
+      }).finished;
+    }).then(function(){
+      programBusy = false;
+    });
+  });
+
   /* dibujo de los contornos decorativos del hero (stroke-dashoffset) */
   if (!reduceMotion){
     anime({
@@ -740,7 +995,7 @@
           scale: [0.96, 1],
           duration: 700,
           easing: 'easeOutCubic',
-          delay: anime.stagger(70, { grid: [3, 2], from: 'center' })
+          delay: anime.stagger(70)
         });
       }
       if (entry.target.id === 'pathList'){
