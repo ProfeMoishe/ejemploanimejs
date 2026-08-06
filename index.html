@@ -1,70 +1,778 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repaso Laboratorio - Anime.js Coreografía</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Incluir Anime.js desde CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPET N.° 249 · Nicolás Copérnico — plantilla anime.js</title>
+<meta name="description" content="Ejemplo de sitio para IPET N.° 249 'Nicolás Copérnico' construido con anime.js, listo para publicar en GitHub Pages.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#e8c93e;
+    --yellow-soft:#f2dd7c;
+    --red:#bd3a3f;
+    --red-deep:#7f2226;
+    --ink:#121009;
+    --ink-2:#1c1811;
+    --paper:#efe8d6;
+    --paper-dim:#b9b19a;
+    --line:rgba(239,232,214,.09);
+    --line-strong:rgba(239,232,214,.18);
+    --radius:2px;
+    --ease-mech: cubic-bezier(.2,.8,.2,1);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Archivo',sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  h1,h2,h3{
+    font-family:'Teko',sans-serif;
+    font-weight:600;
+    letter-spacing:.01em;
+    margin:0;
+    color:var(--paper);
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+
+  /* ---------- blueprint grid backdrop ---------- */
+  .grid-overlay{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(ellipse 90% 80% at 50% 0%, #000 40%, transparent 85%);
+            mask-image:radial-gradient(ellipse 90% 80% at 50% 0%, #000 40%, transparent 85%);
+  }
+
+  section, header, footer{position:relative; z-index:1;}
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--yellow-soft);
+    opacity:0;
+  }
+  .eyebrow span{color:var(--paper-dim);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:6rem 1.5rem 4rem;
+    overflow:hidden;
+  }
+  .hero-gearfield{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+  }
+  .hero-gearfield svg{
+    position:absolute;
+    opacity:.16;
+  }
+  .hero-gearfield svg.g1{ width:46vmin; height:46vmin; top:-8vmin; left:-10vmin; }
+  .hero-gearfield svg.g2{ width:30vmin; height:30vmin; bottom:-6vmin; right:2vmin; }
+  .hero-gearfield svg.g3{ width:20vmin; height:20vmin; top:12vmin; right:16vmin; }
+
+  .hero-content{position:relative; z-index:1; max-width:46rem;}
+
+  .hero-shield{
+    width:clamp(120px, 16vw, 190px);
+    margin:1.1rem auto 1.4rem;
+    filter:drop-shadow(0 18px 30px rgba(0,0,0,.55));
+    opacity:0;
+    transform:scale(.4) rotate(-16deg);
+  }
+
+  .hero-title{
+    font-size:clamp(3rem, 11vw, 6.4rem);
+    line-height:.92;
+    color:var(--yellow);
+    text-shadow:0 6px 0 var(--ink-2), 0 10px 24px rgba(0,0,0,.5);
+  }
+  .hero-title .ch{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(.6em) rotate(4deg);
+  }
+  .hero-title .ch.sp{width:.28em;}
+
+  .hero-kicker{
+    font-size:clamp(1.3rem, 3.4vw, 1.9rem);
+    color:var(--paper-dim);
+    font-family:'Teko',sans-serif;
+    letter-spacing:.04em;
+    margin-top:.15rem;
+    opacity:0;
+  }
+
+  .hero-sub{
+    margin:1.3rem auto 0;
+    max-width:32rem;
+    color:var(--paper-dim);
+    font-size:1rem;
+    opacity:0;
+  }
+
+  .status-lamp{
+    margin:2rem auto 0;
+    display:inline-flex;
+    align-items:center;
+    gap:.55rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+    border:1px solid var(--line-strong);
+    padding:.5rem .9rem;
+    border-radius:999px;
+    opacity:0;
+  }
+  .lamp{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--red);
+    box-shadow:0 0 10px 2px rgba(189,58,63,.7);
+  }
+
+  .scroll-cue{
+    position:absolute;
+    bottom:1.9rem; left:50%;
+    transform:translateX(-50%);
+    background:none;
+    border:1px solid var(--line-strong);
+    color:var(--paper-dim);
+    font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    padding:.5rem .8rem;
+    border-radius:999px;
+    cursor:pointer;
+    opacity:0;
+  }
+  .scroll-cue:hover{color:var(--yellow); border-color:var(--yellow);}
+
+  /* ---------- TICKER ---------- */
+  .ticker{
+    border-top:1px solid var(--line-strong);
+    border-bottom:1px solid var(--line-strong);
+    background:var(--ink-2);
+    overflow:hidden;
+    padding:.75rem 0;
+  }
+  .ticker-track{
+    display:flex;
+    width:max-content;
+    white-space:nowrap;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.78rem;
+    letter-spacing:.16em;
+    color:var(--paper-dim);
+  }
+  .ticker-track span{padding:0 1.4rem; display:inline-flex; align-items:center; gap:1.4rem;}
+  .ticker-track span::after{content:'◆'; color:var(--red); font-size:.6rem;}
+
+  /* ---------- shared section chrome ---------- */
+  main > section{
+    padding:6.5rem 1.5rem;
+    max-width:74rem;
+    margin:0 auto;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:1rem;
+    flex-wrap:wrap;
+    margin-bottom:2.6rem;
+    opacity:0;
+    transform:translateY(24px);
+  }
+  .section-num{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--red);
+    font-size:.85rem;
+    letter-spacing:.1em;
+  }
+  .section-title{
+    font-size:clamp(2.2rem, 5vw, 3.4rem);
+  }
+  .section-lead{
+    max-width:38rem;
+    color:var(--paper-dim);
+    margin-top:.4rem;
+  }
+
+  /* ---------- MECHANISM ---------- */
+  .mechanism{
+    border-top:1px solid var(--line-strong);
+  }
+  .mechanism-stage{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:2.5rem;
+    align-items:center;
+  }
+  @media (max-width:760px){
+    .mechanism-stage{grid-template-columns:1fr;}
+  }
+  .gear-rig{
+    position:relative;
+    background:var(--ink-2);
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius);
+  }
+  .gear-rig svg{width:100%; height:auto; display:block; cursor:pointer;}
+  .gear-rig .hint{
+    position:absolute;
+    bottom:.8rem; left:.9rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+    pointer-events:none;
+  }
+  .readout{
+    border:1px solid var(--line-strong);
+    padding:1.8rem 1.6rem;
+    text-align:center;
+    background:var(--ink-2);
+  }
+  .readout-value{
+    display:block;
+    font-family:'Teko',sans-serif;
+    font-size:5rem;
+    line-height:1;
+    color:var(--yellow);
+  }
+  .readout-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.7rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+  }
+  .spark{
+    position:absolute;
+    width:5px; height:5px;
+    background:var(--yellow);
+    border-radius:1px;
+    pointer-events:none;
+  }
+
+  /* ---------- WORKSHOPS ---------- */
+  .workshops{border-top:1px solid var(--line-strong);}
+  .workshop-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1px;
+    background:var(--line-strong);
+    border:1px solid var(--line-strong);
+  }
+  @media (max-width:760px){
+    .workshop-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:500px){
+    .workshop-grid{grid-template-columns:1fr;}
+  }
+  .workshop-card{
+    background:var(--ink);
+    padding:1.8rem 1.5rem;
+    opacity:0;
+    transform:translateY(26px) scale(.96);
+  }
+  .workshop-card .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.1em;
+    color:var(--red);
+  }
+  .workshop-card h3{
+    font-size:1.65rem;
+    margin:.4rem 0 .5rem;
+    color:var(--paper);
+  }
+  .workshop-card p{
+    font-size:.88rem;
+    color:var(--paper-dim);
+    margin:0;
+  }
+  .workshop-card svg{width:28px; height:28px; margin-bottom:.6rem;}
+
+  /* ---------- PATH ---------- */
+  .path-section{border-top:1px solid var(--line-strong);}
+  .path-list{
+    list-style:none;
+    margin:0; padding:0;
+    border-top:1px solid var(--line-strong);
+  }
+  .path-list li{
+    display:grid;
+    grid-template-columns:5rem 1fr;
+    gap:1.4rem;
+    padding:1.6rem 0;
+    border-bottom:1px solid var(--line-strong);
+    opacity:0;
+    transform:translateX(-24px);
+  }
+  .path-list .step{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--yellow);
+    font-size:.85rem;
+    padding-top:.2rem;
+  }
+  .path-list h3{font-size:1.5rem; margin-bottom:.25rem;}
+  .path-list p{margin:0; color:var(--paper-dim); font-size:.9rem; max-width:36rem;}
+
+  /* ---------- CTA ---------- */
+  .cta{
+    border-top:1px solid var(--line-strong);
+    text-align:center;
+  }
+  .cta h2{font-size:clamp(2rem,5vw,3rem); color:var(--yellow);}
+  .cta p{max-width:34rem; margin:1rem auto 0; color:var(--paper-dim); font-size:.94rem;}
+
+  footer{
+    border-top:1px solid var(--line-strong);
+    padding:2.4rem 1.5rem 3rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.9rem;
+    text-align:center;
+    color:var(--paper-dim);
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.04em;
+  }
+  footer img{width:30px; opacity:.8;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+</style>
 </head>
 <body>
 
-    <main class="scene">
-        <div class="shield-container">
-            <!-- SVG del Escudo del Colegio recreado para animación -->
-            <svg id="school-shield" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 470">
-                <defs>
-                    <!-- Ruta curva para el texto de Copérnico -->
-                    <path id="copernico-path" d="M 60,370 C 100,420 300,420 340,370" fill="none"/>
-                </defs>
-                
-                <!-- Cuerpo del Escudo -->
-                <path class="shield-border" d="M 200,10 C 230,20 260,20 290,10 L 320,30 C 350,50 370,80 370,120 L 370,220 C 370,260 350,300 310,340 L 200,450 L 90,340 C 50,300 30,260 30,220 L 30,120 C 30,80 50,50 80,30 Z" fill="none" stroke="black" stroke-width="4"/>
-                <path class="shield-body" d="M 200,10 C 230,20 260,20 290,10 L 320,30 C 350,50 370,80 370,120 L 370,220 C 370,260 350,300 310,340 L 200,450 L 90,340 C 50,300 30,260 30,220 L 30,120 C 30,80 50,50 80,30 Z" fill="#ffeb3b" opacity="0"/>
+<div class="grid-overlay" aria-hidden="true"></div>
 
-                <!-- Engranajes y Texto central -->
-                <g class="central-elements" opacity="0">
-                    <!-- Engranaje Grande y Texto IPET superpuesto -->
-                    <g class="gear-large-group" transform="translate(230, 230)">
-                        <path class="gear-large" d="M -70,0 A 70,70 0 1,0 70,0 A 70,70 0 1,0 -70,0 M -75,-2 L -75,2 L -71,2 L -71,-2 Z M -65,-36 L -65,-32 L -61,-32 L -61,-36 Z M -36,-65 L -36,-61 L -32,-61 L -32,-65 Z M -2,-75 L 2,-75 L 2,-71 L -2,-71 Z M 32,-65 L 32,-61 L 36,-61 L 36,-65 Z M 61,-36 L 61,-32 L 65,-32 L 65,-36 Z M 71,-2 L 71,2 L 75,2 L 75,-2 Z M 65,32 L 65,36 L 61,36 L 61,32 Z M 36,61 L 36,65 L 32,65 L 32,61 Z M 2,71 L -2,71 L -2,75 L 2,75 Z M -32,65 L -32,61 L -36,61 L -36,65 Z M -61,36 L -61,32 L -65,32 L -65,36 Z M 0,0 L 0,-10 L 5,-15 L 5,-5 L 10,0 L 5,5 L 5,15 L 0,10 L -5,15 L -5,5 L -10,0 L -5,-5 Z" fill="#f44336" stroke="#d32f2f" stroke-width="2"/>
-                        
-                        <text class="ipet-text" font-family="Verdana" font-size="40" fill="black" text-anchor="middle">
-                            <tspan class="char char-I" x="-45" y="-10" transform="rotate(-15 -45 -10)">I</tspan>
-                            <tspan class="char char-P" x="-10" y="-10" transform="rotate(5 -10 -10)">P</tspan>
-                            <tspan class="char char-E" x="25" y="-10" transform="rotate(20 25 -10)">E</tspan>
-                            <tspan class="char char-T" x="65" y="-10" transform="rotate(40 65 -10)">T</tspan>
-                        </text>
-                    </g>
-                    
-                    <!-- Engranaje Pequeño -->
-                    <g class="gear-small-group" transform="translate(130, 130)">
-                        <path class="gear-small" d="M -45,0 A 45,45 0 1,0 45,0 A 45,45 0 1,0 -45,0 M -49,-1 L -49,1 L -46,1 L -46,-1 Z M -39,-25 L -39,-23 L -36,-23 L -36,-25 Z M -25,-39 L -25,-36 L -23,-36 L -23,-39 Z M -1,-49 L 1,-49 L 1,-46 L -1,-46 Z M 23,-39 L 23,-36 L 25,-36 L 25,-39 Z M 36,-25 L 36,-23 L 39,-23 L 39,-25 Z M 46,-1 L 46,1 L 49,1 L 49,-1 Z M 39,23 L 39,25 L 36,25 L 36,23 Z M 25,36 L 25,39 L 23,39 L 23,36 Z M 1,46 L -1,46 L -1,49 L 1,49 Z M -23,36 L -23,39 L -25,39 L -25,36 Z M -36,23 L -36,25 L -39,25 L -39,23 Z" fill="#f44336" stroke="#d32f2f" stroke-width="1.5"/>
-                    </g>
-                </g>
+<header class="hero">
+  <div class="hero-gearfield" aria-hidden="true">
+    <svg class="g1" data-gear='{"teeth":16,"outerR":95,"rootR":80,"holeR":26,"stroke":"var(--yellow-soft)"}' viewBox="0 0 220 220"></svg>
+    <svg class="g2" data-gear='{"teeth":12,"outerR":95,"rootR":78,"holeR":24,"stroke":"var(--red)"}' viewBox="0 0 220 220"></svg>
+    <svg class="g3" data-gear='{"teeth":10,"outerR":95,"rootR":76,"holeR":22,"stroke":"var(--paper)"}' viewBox="0 0 220 220"></svg>
+  </div>
 
-                <!-- Número "249" -->
-                <text class="num-249" x="200" y="320" font-family="Verdana" font-size="60" font-weight="bold" fill="black" text-anchor="middle" opacity="0">249</text>
+  <div class="hero-content">
+    <p class="eyebrow" id="eyebrow">Escuela Técnica · <span>Establecimiento N.° 249</span></p>
+    <img class="hero-shield" id="heroShield" src="logo.png" alt="Escudo del IPET N.° 249 Nicolás Copérnico">
+    <h1 class="hero-title" id="heroTitle" data-split>IPET 249</h1>
+    <p class="hero-kicker" id="heroKicker">Nicolás Copérnico</p>
+    <p class="hero-sub" id="heroSub">Formación técnico-profesional: mecánica, electrónica e informática, engranaje a engranaje.</p>
+    <div class="status-lamp" id="statusLamp"><span class="lamp"></span> Plantilla de ejemplo · anime.js</div>
+  </div>
 
-                <!-- Texto curvo inferior -->
-                <text class="copernico-text" font-family="Verdana" font-size="28" fill="black" text-anchor="middle" opacity="0">
-                    <textPath xlink:href="#copernico-path" startOffset="50%">Nicolás Copérnico</textPath>
-                </text>
-            </svg>
-        </div>
+  <button class="scroll-cue" id="scrollCue" onclick="document.getElementById('mecanismo').scrollIntoView({behavior:'smooth'})">↓ ver el mecanismo</button>
+</header>
 
-        <!-- Panel de información técnica -->
-        <aside class="info-panel">
-            <h2>Potencialidad de Anime.js</h2>
-            <ul>
-                <li class="info-item item-timeline"><span>Timelines:</span> Coreografías visuales complejas paso a paso.</li>
-                <li class="info-item item-stagger"><span>Staggering:</span> Retrasos escalonados para elementos múltiples.</li>
-                <li class="info-item item-svg"><span>SVG Path Morphing:</span> Transformación de formas complejas.</li>
-            </ul>
-        </aside>
-    </main>
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack">
+    <span>TALLER</span><span>LABORATORIO</span><span>PROYECTO FINAL</span><span>PRÁCTICA PROFESIONALIZANTE</span><span>CICLO SUPERIOR</span><span>EGRESO</span>
+    <span>TALLER</span><span>LABORATORIO</span><span>PROYECTO FINAL</span><span>PRÁCTICA PROFESIONALIZANTE</span><span>CICLO SUPERIOR</span><span>EGRESO</span>
+  </div>
+</div>
 
-    <!-- Vincular la lógica de animación -->
-    <script src="script.js"></script>
+<main>
+
+  <section id="mecanismo" class="mechanism">
+    <div class="section-head" data-reveal>
+      <span class="section-num mono">01</span>
+      <h2 class="section-title">El mecanismo</h2>
+    </div>
+    <p class="section-lead" style="margin-top:-1.6rem; margin-bottom:2.4rem;">Un engranaje no gira solo. Tocá la rueda roja para poner todo el sistema en marcha.</p>
+
+    <div class="mechanism-stage">
+      <div class="gear-rig" id="gearRig">
+        <svg id="gearCluster" viewBox="0 0 480 320" role="img" aria-label="Sistema de tres engranajes interactivo">
+          <g id="gearA" style="transform-origin:150px 190px;"></g>
+          <g id="gearB" style="transform-origin:310px 120px;"></g>
+          <g id="gearC" style="transform-origin:400px 195px;"></g>
+        </svg>
+        <span class="hint mono">clic en el engranaje</span>
+      </div>
+      <div class="readout">
+        <span class="readout-value mono" id="turnCount">0</span>
+        <span class="readout-label">vueltas registradas</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="talleres" class="workshops">
+    <div class="section-head" data-reveal>
+      <span class="section-num mono">02</span>
+      <h2 class="section-title">Espacios de formación</h2>
+    </div>
+    <div class="workshop-grid" id="workshopGrid">
+      <article class="workshop-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.4"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.4"/></svg>
+        <span class="tag mono">T-01</span>
+        <h3>Taller de Mecanizado</h3>
+        <p>Tornos, fresas y ajuste manual para la fabricación de piezas de precisión.</p>
+      </article>
+      <article class="workshop-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.4"><path d="M4 12h4l2-6 4 12 2-6h4"/></svg>
+        <span class="tag mono">T-02</span>
+        <h3>Laboratorio de Electrónica</h3>
+        <p>Circuitos, instrumentos de medición y prototipado de placas.</p>
+      </article>
+      <article class="workshop-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.4"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg>
+        <span class="tag mono">T-03</span>
+        <h3>Sala de Informática</h3>
+        <p>Programación, redes y herramientas de diseño asistido por computadora.</p>
+      </article>
+      <article class="workshop-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.4"><path d="M4 20 15 4l5 5-11 16z"/><path d="M13 6l5 5"/></svg>
+        <span class="tag mono">T-04</span>
+        <h3>Dibujo Técnico y CAD</h3>
+        <p>Planos, normas de representación y modelado tridimensional.</p>
+      </article>
+      <article class="workshop-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.4"><rect x="4" y="10" width="16" height="8" rx="1"/><path d="M8 10V6h8v4"/></svg>
+        <span class="tag mono">T-05</span>
+        <h3>Banco de Ajuste</h3>
+        <p>Limado, roscado y montaje de conjuntos mecánicos.</p>
+      </article>
+      <article class="workshop-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.4"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>
+        <span class="tag mono">T-06</span>
+        <h3>Aula de Electromecánica</h3>
+        <p>Motores, tableros de comando y sistemas de automatización.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="recorrido" class="path-section">
+    <div class="section-head" data-reveal>
+      <span class="section-num mono">03</span>
+      <h2 class="section-title">Recorrido formativo</h2>
+    </div>
+    <ol class="path-list" id="pathList">
+      <li>
+        <span class="step mono">01 · 1°–2°</span>
+        <div><h3>Ciclo Básico</h3><p>Formación general común a todas las orientaciones técnicas.</p></div>
+      </li>
+      <li>
+        <span class="step mono">02 · 3°–6°</span>
+        <div><h3>Ciclo Superior</h3><p>Especialización técnica con carga creciente de taller y laboratorio.</p></div>
+      </li>
+      <li>
+        <span class="step mono">03 · Final</span>
+        <div><h3>Prácticas Profesionalizantes</h3><p>Experiencia formativa en talleres, laboratorios o entornos de trabajo reales.</p></div>
+      </li>
+      <li>
+        <span class="step mono">04 · Egreso</span>
+        <div><h3>Título técnico</h3><p>Egreso con título de técnico/a de nivel medio, validez nacional.</p></div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="cta">
+    <h2>Armá tu propio engranaje</h2>
+    <p>Esta página es un ejemplo con anime.js, pensado para publicarse en GitHub Pages. Reemplazá textos, colores y el escudo por los de tu institución.</p>
+  </section>
+
+</main>
+
+<footer>
+  <img src="logo.png" alt="">
+  <p>IPET N.° 249 «Nicolás Copérnico» — plantilla de ejemplo construida con anime.js</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* =====================================================
+     1) GENERADOR DE ENGRANAJES SVG (path con diente recto)
+     ===================================================== */
+  function polar(cx, cy, r, a){
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  }
+
+  // Devuelve un "d" de path con evenodd: silueta dentada + agujero central.
+  function gearPathD(cx, cy, teeth, outerR, rootR, holeR, toothRatio){
+    toothRatio = toothRatio || 0.46;
+    var step = (Math.PI * 2) / teeth;
+    var pts = [];
+    for (var i = 0; i < teeth; i++){
+      var a0 = i * step;
+      var a1 = a0 + step * toothRatio * 0.5;
+      var a2 = a0 + step - step * toothRatio * 0.5;
+      var a3 = a0 + step;
+      pts.push(polar(cx, cy, rootR, a0));
+      pts.push(polar(cx, cy, outerR, a1));
+      pts.push(polar(cx, cy, outerR, a2));
+      pts.push(polar(cx, cy, rootR, a3));
+    }
+    var outer = 'M' + pts.map(function(p){ return p.x.toFixed(2) + ',' + p.y.toFixed(2); }).join('L') + 'Z';
+    var hole = 'M' + (cx + holeR) + ',' + cy +
+      ' A' + holeR + ',' + holeR + ' 0 1,0 ' + (cx - holeR) + ',' + cy +
+      ' A' + holeR + ',' + holeR + ' 0 1,0 ' + (cx + holeR) + ',' + cy + 'Z';
+    return outer + ' ' + hole;
+  }
+
+  var NS = 'http://www.w3.org/2000/svg';
+  function makeGear(cx, cy, opts){
+    var path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', gearPathD(cx, cy, opts.teeth, opts.outerR, opts.rootR, opts.holeR));
+    path.setAttribute('fill-rule', 'evenodd');
+    if (opts.fill){ path.setAttribute('fill', opts.fill); }
+    if (opts.stroke){
+      path.setAttribute('stroke', opts.stroke);
+      path.setAttribute('stroke-width', opts.strokeWidth || 2);
+    }
+    if (!opts.fill){ path.setAttribute('fill', 'none'); }
+    return path;
+  }
+
+  /* ---- engranajes decorativos del hero (solo contorno) ---- */
+  document.querySelectorAll('.hero-gearfield svg').forEach(function(svg){
+    var cfg = JSON.parse(svg.getAttribute('data-gear'));
+    var g = makeGear(110, 110, { teeth: cfg.teeth, outerR: cfg.outerR, rootR: cfg.rootR, holeR: cfg.holeR, stroke: cfg.stroke, strokeWidth: 2 });
+    svg.appendChild(g);
+    svg.style.transformOrigin = '110px 110px';
+  });
+
+  /* ---- engranajes del mecanismo interactivo (rellenos) ---- */
+  var gearA = document.getElementById('gearA');
+  var gearB = document.getElementById('gearB');
+  var gearC = document.getElementById('gearC');
+  var TEETH = { A: 16, B: 10, C: 8 };
+
+  gearA.appendChild(makeGear(150, 190, { teeth: TEETH.A, outerR: 92, rootR: 78, holeR: 24, fill: '#bd3a3f', stroke: '#121009', strokeWidth: 2 }));
+  gearB.appendChild(makeGear(310, 120, { teeth: TEETH.B, outerR: 58, rootR: 48, holeR: 15, fill: '#e8c93e', stroke: '#121009', strokeWidth: 2 }));
+  gearC.appendChild(makeGear(400, 195, { teeth: TEETH.C, outerR: 44, rootR: 36, holeR: 11, fill: '#bd3a3f', stroke: '#121009', strokeWidth: 2 }));
+
+  /* =====================================================
+     2) TITULAR: separar en letras para animar con stagger
+     ===================================================== */
+  var titleEl = document.getElementById('heroTitle');
+  var chars = Array.from(titleEl.textContent);
+  titleEl.innerHTML = chars.map(function(c){
+    return c === ' ' ? '<span class="ch sp"> </span>' : '<span class="ch">' + c + '</span>';
+  }).join('');
+
+  /* =====================================================
+     3) TIMELINE DE ENTRADA DEL HERO
+     ===================================================== */
+  var heroTL = anime.timeline({
+    easing: 'easeOutExpo',
+    duration: 900
+  });
+
+  heroTL
+    .add({ targets: '#eyebrow', opacity: [0, 1], translateY: [-10, 0] })
+    .add({
+      targets: '#heroShield',
+      opacity: [0, 1],
+      scale: [0.4, 1],
+      rotate: [-16, 0],
+      duration: 1300,
+      easing: 'easeOutElastic(1, .6)'
+    }, '-=400')
+    .add({
+      targets: '.hero-title .ch',
+      opacity: [0, 1],
+      translateY: [ '0.6em', '0em'],
+      rotate: [4, 0],
+      duration: 700,
+      delay: anime.stagger(28)
+    }, '-=900')
+    .add({ targets: '#heroKicker', opacity: [0, 1], translateY: [12, 0] }, '-=500')
+    .add({ targets: '#heroSub', opacity: [0, 1], translateY: [12, 0] }, '-=650')
+    .add({ targets: '#statusLamp', opacity: [0, 1] }, '-=500')
+    .add({ targets: '#scrollCue', opacity: [0, 1], translateY: [8, 0] }, '-=450');
+
+  /* lámpara de estado: keyframes en loop */
+  anime({
+    targets: '.lamp',
+    opacity: [ { value: 1, duration: 700 }, { value: 0.25, duration: 700 }, { value: 1, duration: 700 } ],
+    easing: 'easeInOutSine',
+    loop: true
+  });
+
+  /* engranajes decorativos: rotación continua en direcciones opuestas */
+  if (!reduceMotion){
+    anime({ targets: '.hero-gearfield .g1', rotate: 360, duration: 34000, easing: 'linear', loop: true });
+    anime({ targets: '.hero-gearfield .g2', rotate: -360, duration: 22000, easing: 'linear', loop: true });
+    anime({ targets: '.hero-gearfield .g3', rotate: 360, duration: 14000, easing: 'linear', loop: true });
+  }
+
+  /* ticker: cinta continua con anime (traslado infinito) */
+  anime({
+    targets: '#tickerTrack',
+    translateX: ['0%', '-50%'],
+    duration: reduceMotion ? 1 : 24000,
+    easing: 'linear',
+    loop: true
+  });
+
+  /* =====================================================
+     4) MECANISMO INTERACTIVO: clic → giro + contador + chispas
+     ===================================================== */
+  var turns = 0;
+  var turnCountEl = document.getElementById('turnCount');
+  var rig = document.getElementById('gearRig');
+  var busy = false;
+
+  function animateCounter(from, to){
+    var obj = { v: from };
+    anime({
+      targets: obj,
+      v: to,
+      round: 1,
+      duration: 500,
+      easing: 'easeOutQuad',
+      update: function(){ turnCountEl.textContent = Math.round(obj.v); }
+    });
+  }
+
+  function spawnSparks(x, y){
+    for (var i = 0; i < 10; i++){
+      var s = document.createElement('span');
+      s.className = 'spark';
+      s.style.left = x + 'px';
+      s.style.top = y + 'px';
+      s.style.background = i % 2 === 0 ? 'var(--yellow)' : 'var(--red)';
+      rig.appendChild(s);
+      anime({
+        targets: s,
+        translateX: function(){ return anime.random(-70, 70); },
+        translateY: function(){ return anime.random(-70, 70); },
+        scale: [1, 0],
+        opacity: [1, 0],
+        duration: anime.random(500, 900),
+        easing: 'easeOutExpo',
+        complete: function(anim){
+          anim.animatables[0].target.remove();
+        }
+      });
+    }
+  }
+
+  document.getElementById('gearCluster').addEventListener('click', function(ev){
+    if (busy) return;
+    busy = true;
+    turns += 1;
+    animateCounter(turns - 1, turns);
+
+    var rect = rig.getBoundingClientRect();
+    spawnSparks(ev.clientX - rect.left, ev.clientY - rect.top);
+
+    var ratioB = TEETH.A / TEETH.B;
+    var ratioC = TEETH.A / TEETH.C;
+
+    anime({ targets: '#gearA', rotate: '+=360', duration: 1100, easing: 'easeOutElastic(1, .5)' });
+    anime({ targets: '#gearB', rotate: '-=' + (360 * ratioB), duration: 1100, easing: 'easeOutElastic(1, .5)' });
+    anime({
+      targets: '#gearC',
+      rotate: '+=' + (360 * ratioC),
+      duration: 1100,
+      easing: 'easeOutElastic(1, .5)',
+      complete: function(){ busy = false; }
+    });
+  });
+
+  /* dibujo de los contornos decorativos del hero (stroke-dashoffset) */
+  if (!reduceMotion){
+    anime({
+      targets: '.hero-gearfield path',
+      strokeDashoffset: [anime.setDashoffset, 0],
+      duration: 2200,
+      easing: 'easeInOutSine',
+      delay: anime.stagger(300)
+    });
+  }
+
+  /* =====================================================
+     5) REVELADO AL HACER SCROLL (IntersectionObserver + anime)
+     ===================================================== */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (!entry.isIntersecting) return;
+      io.unobserve(entry.target);
+
+      if (entry.target.hasAttribute('data-reveal')){
+        anime({ targets: entry.target, opacity: [0, 1], translateY: [24, 0], duration: 800, easing: 'easeOutCubic' });
+      }
+      if (entry.target.id === 'workshopGrid'){
+        anime({
+          targets: '#workshopGrid .workshop-card',
+          opacity: [0, 1],
+          translateY: [26, 0],
+          scale: [0.96, 1],
+          duration: 700,
+          easing: 'easeOutCubic',
+          delay: anime.stagger(70, { grid: [3, 2], from: 'center' })
+        });
+      }
+      if (entry.target.id === 'pathList'){
+        anime({
+          targets: '#pathList li',
+          opacity: [0, 1],
+          translateX: [-24, 0],
+          duration: 650,
+          easing: 'easeOutCubic',
+          delay: anime.stagger(110)
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
+  io.observe(document.getElementById('workshopGrid'));
+  io.observe(document.getElementById('pathList'));
+
+  /* =====================================================
+     6) INTERACCIÓN EN HOVER DE LAS TARJETAS DE TALLER
+     ===================================================== */
+  document.querySelectorAll('.workshop-card').forEach(function(card){
+    card.addEventListener('mouseenter', function(){
+      anime({ targets: card, translateY: -6, scale: 1.02, duration: 320, easing: 'easeOutQuad' });
+    });
+    card.addEventListener('mouseleave', function(){
+      anime({ targets: card, translateY: 0, scale: 1, duration: 320, easing: 'easeOutQuad' });
+    });
+  });
+
+})();
+</script>
 </body>
 </html>
